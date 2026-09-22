@@ -50,7 +50,7 @@ jobs:
   push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: [build, scan] # Depende de build y scan
+    needs: [scan, test] # Depende de build y scan
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -72,9 +72,17 @@ jobs:
 
   # 4. Job de Tests
   test:
-    name: Test
+    name: Quality Gate (SonarCloud)
     runs-on: ubuntu-latest
-    needs: push
+    needs: scan
     steps:
-      - name: Simular tests
-        run: echo "Tests pendientes — se implementan en el siguiente paso"
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # necesario para análisis completo de historial
+
+      - name: Análisis SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

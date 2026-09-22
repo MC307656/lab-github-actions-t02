@@ -1,2 +1,2 @@
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/index.html
+FROM cgr.dev/chainguard/nginx
+dev/chainguard/nginx

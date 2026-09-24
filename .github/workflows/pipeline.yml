@@ -16,12 +16,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Configuración necesaria para habilitar el caché gha
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build de imagen Docker utilizando caché de GitHub Actions
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
           tags: webapp:${{ github.sha }}
+          cache-from: type=gha        # Lee el caché de ejecuciones anteriores
+          cache-to: type=gha,mode=max # Guarda el caché para la próxima ejecución
 
       - name: Detect secrets (Gitleaks)
         uses: gitleaks/gitleaks-action@v2
@@ -73,7 +80,7 @@ jobs:
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: production       # ← requiere aprobación manual
+    environment: production       # Requiere aprobación manual
     steps:
       - uses: actions/checkout@v4
 
